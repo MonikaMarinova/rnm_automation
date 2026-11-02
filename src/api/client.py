@@ -71,6 +71,9 @@ class RickAndMortyClient:
         if not isinstance(characters, list) or len(characters) != len(unique_ids):
             raise ApiError(f"Requested {len(unique_ids)} characters {unique_ids}, "
                            f"got an unexpected response: {payload!r:.200}")
+        returned_ids = {character.get("id") for character in characters}
+        if returned_ids != set(unique_ids):
+            raise ApiError(f"Requested character ids {sorted(unique_ids)}, got {sorted(returned_ids, key=str)}")
         return characters
 
     def close(self) -> None:
