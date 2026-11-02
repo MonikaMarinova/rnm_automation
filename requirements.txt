@@ -1,0 +1,5 @@
+requests>=2.31
+selenium>=4.20        # 4.6+ ships Selenium Manager, so no separate chromedriver setup
+pytest>=8.0
+pytest-html>=4.1      # self-contained HTML report
+Pillow>=10.0          # PNG (Selenium) -> JPG conversion for screenshots
