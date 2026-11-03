@@ -65,6 +65,8 @@ def test_component_b_matches_builtin_sort_on_random_input():
         assert component_b(*args) == sorted(args)
 
 
+# ------------------------------------------- design constraints from the task
+
 def test_component_b_uses_only_component_a(monkeypatch):
     """B must delegate every comparison to A: exactly 5 two-argument calls."""
     calls = []

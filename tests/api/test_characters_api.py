@@ -6,6 +6,7 @@ Run with `-s` to see the printed episode name / character count on the console
 import pytest
 
 from config.settings import settings
+from src.services.verification import check_same_location
 from src.utils.logger import get_logger
 
 log = get_logger("api-tests")
@@ -44,11 +45,10 @@ def test_characters_introduce_themselves(selected_characters):
 
 
 def test_characters_share_location(selected_characters):
+    """Task requirement. Two random characters rarely share a location, so this is often red BY DESIGN:
+    the failure message names both characters and both locations."""
     first, second = selected_characters
-    assert first.location.name == second.location.name, (
-        f"Characters are from different locations: "
-        f"{first.name} is from '{first.location.name}', "
-        f"{second.name} is from '{second.location.name}'")
-    message = f"Both characters are from {first.location.name}."
-    log.info(message)
-    print(message)
+    check = check_same_location(first, second)
+    assert check.same, check.message
+    log.info(check.message)  # "Both characters are from <LOCATION>."
+    print(check.message)

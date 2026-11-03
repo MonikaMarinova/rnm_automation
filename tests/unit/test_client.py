@@ -95,3 +95,10 @@ def test_failures_are_wrapped_in_api_error(route):
     client, _ = make_client({f"{BASE}/character/1": route})
     with pytest.raises(ApiError):
         client.get_characters([1])
+
+
+@pytest.mark.unit
+def test_get_characters_detects_wrong_ids():
+    client, _ = make_client({f"{BASE}/character/1,2": FakeResponse([{"id": 1}, {"id": 3}])})
+    with pytest.raises(ApiError, match="got"):
+        client.get_characters([1, 2])

@@ -1,8 +1,9 @@
 """Central configuration. Every value has a default and can be overridden via an RM_* env var."""
 import os
+import shlex
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Tuple
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
@@ -15,6 +16,11 @@ def _env_bool(name: str, default: bool) -> bool:
 def _env_optional_int(name: str) -> Optional[int]:
     value = os.getenv(name)
     return int(value) if value else None
+
+
+def _env_optional_path(name: str) -> Optional[Path]:
+    value = os.getenv(name)
+    return Path(value) if value else None
 
 
 @dataclass(frozen=True)
@@ -30,6 +36,9 @@ class Settings:
     browser_language: str
     headless: bool
     ui_timeout: float               # explicit-wait timeout, seconds
+    chrome_args: Tuple[str, ...]    # extra Chrome flags, e.g. RM_CHROME_ARGS="--no-sandbox" on CI
+    chrome_profile_dir: Optional[Path]  # dedicated profile folder => cookies/consent survive between runs
+    captcha_wait: float             # seconds to wait for a HUMAN to solve a CAPTCHA (120 = fail immediately)
 
     # --- Output ---
     output_dir: Path
@@ -54,6 +63,9 @@ class Settings:
             browser_language=os.getenv("RM_BROWSER_LANGUAGE", "en"),
             headless=_env_bool("RM_HEADLESS", False),
             ui_timeout=float(os.getenv("RM_UI_TIMEOUT", "15")),
+            chrome_args=tuple(shlex.split(os.getenv("RM_CHROME_ARGS", ""))),
+            chrome_profile_dir=_env_optional_path("RM_CHROME_PROFILE_DIR"),
+            captcha_wait=float(os.getenv("RM_CAPTCHA_WAIT", "120")),
             output_dir=Path(os.getenv("RM_OUTPUT_DIR", PROJECT_ROOT / "output")),
             seed=_env_optional_int("RM_SEED"),
         )

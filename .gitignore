@@ -7,3 +7,6 @@ __pycache__/
 output/report.html
 output/*.log
 output/*.txt
+output/failures/
+output/screenshots/
+.chrome-profile/
