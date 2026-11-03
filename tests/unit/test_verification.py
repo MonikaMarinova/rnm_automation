@@ -23,8 +23,20 @@ def test_different_locations_message_names_both_characters_and_locations():
     assert not check.same
     assert check.message == (
         "Characters are from different locations: "
-        "Crystal Poacher is from 'Forbodulon Prime', Wasp Summer is from 'Earth (Wasp Dimension)'")
+        "Crystal Poacher is from 'Forbodulon Prime', Wasp Summer is from 'Earth (Wasp Dimension)'.")
 
 
-def test_location_comparison_is_by_name_so_two_unknowns_match():
-    assert check_same_location(character(1, "A", "unknown"), character(2, "B", "unknown")).same
+@pytest.mark.parametrize(
+    "first_location, second_location",
+    [("unknown", "unknown"), ("Citadel of Ricks", "unknown"), ("", "Citadel of Ricks")],
+)
+def test_unknown_location_is_unverifiable(first_location, second_location):
+    check = check_same_location(
+        character(1, "Rick Sanchez", first_location),
+        character(2, "Morty Smith", second_location),
+    )
+
+    assert check.same is None
+    assert "Cannot verify whether Rick Sanchez and Morty Smith share a location" in check.message
+    assert f"Rick Sanchez: '{first_location}'" in check.message
+    assert f"Morty Smith: '{second_location}'" in check.message
