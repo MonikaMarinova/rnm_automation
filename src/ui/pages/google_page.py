@@ -46,10 +46,14 @@ class GooglePage(BasePage):
                 return
             except TimeoutException:
                 pass
-        raise BlockedByGoogleError(
-            f"Google is showing a CAPTCHA / unusual-traffic page ({self.driver.current_url}). "
-            "Run non-headless with RM_CAPTCHA_WAIT=120 to solve it manually, "
-            "or set RM_CHROME_PROFILE_DIR to reuse a profile that already passed it.")
+        message = f"Google is showing a CAPTCHA / unusual-traffic page ({self.driver.current_url})."
+        if self.captcha_wait == 0:
+            message += " Automated tests do not attempt to solve CAPTCHAs."
+        else:
+            message += (
+                " Run non-headless with RM_CAPTCHA_WAIT set to give a human time to solve it, "
+                "or retry later.")
+        raise BlockedByGoogleError(message)
 
     def on_timeout(self, description: str) -> None:
         self.ensure_not_blocked()  # a timeout caused by a CAPTCHA deserves a clear message

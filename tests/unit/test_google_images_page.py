@@ -2,6 +2,7 @@
 import pytest
 from selenium.common.exceptions import TimeoutException
 
+from src.ui.pages.google_home_page import GoogleHomePage
 from src.ui.pages.google_images_page import GoogleImagesPage
 from src.ui.pages.google_page import BlockedByGoogleError
 
@@ -42,6 +43,21 @@ def test_captcha_page_is_reported_as_blocked_not_as_a_generic_timeout():
     )
     with pytest.raises(BlockedByGoogleError, match="CAPTCHA"):
         page.get_result_image(1)
+
+
+def test_home_page_propagates_unattended_captcha_setting(monkeypatch):
+    class Driver:
+        current_url = "https://www.google.com/"
+
+        def get(self, url):
+            self.current_url = url
+
+    monkeypatch.setattr(GoogleHomePage, "click", lambda self, locator, timeout=None: None)
+    monkeypatch.setattr(GoogleImagesPage, "wait_until_ready", lambda self: self)
+
+    images_page = GoogleHomePage(Driver(), captcha_wait=0).open_images()
+
+    assert images_page.captcha_wait == 0
 
 
 def test_position_must_be_positive():

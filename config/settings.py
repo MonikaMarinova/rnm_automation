@@ -61,7 +61,7 @@ class Settings:
             characters_to_select=2,
             google_url=os.getenv("RM_GOOGLE_URL", "https://www.google.com/?hl=en"),
             browser_language=os.getenv("RM_BROWSER_LANGUAGE", "en"),
-            headless=_env_bool("RM_HEADLESS", False),
+            headless=_env_bool("RM_HEADLESS", True),
             ui_timeout=float(os.getenv("RM_UI_TIMEOUT", "15")),
             chrome_args=tuple(shlex.split(os.getenv("RM_CHROME_ARGS", ""))),
             chrome_profile_dir=_env_optional_path("RM_CHROME_PROFILE_DIR"),

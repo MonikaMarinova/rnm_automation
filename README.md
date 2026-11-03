@@ -36,7 +36,7 @@ Run the complete suite:
 python -m pytest
 ```
 
-The suite includes unit tests, API tests, and live Google UI tests. To run individual
+The suite includes unit tests, API tests, and browser UI tests. To run individual
 groups:
 
 ```powershell
@@ -45,10 +45,13 @@ python -m pytest -m api
 python -m pytest -m ui
 ```
 
-API and UI tests require internet access. UI tests open Chrome; Google may show a
-CAPTCHA, in which case the test waits for a human to solve it (120 seconds by
-default). Use a visible browser for this workflow. A persistent Chrome profile can
-preserve consent and other browser state between runs.
+API tests require internet access. The UI tests run Chrome headlessly against a
+local Google-shaped test site, so the browser flow is repeatable and needs neither
+API access nor human interaction. They verify navigation, search submission,
+result selection, and image-element screenshots. They do not verify Google's
+current live markup or capture real Google images. CAPTCHA-protected live Google
+searches are not automated or bypassed. Set `RM_HEADLESS=false` to view the local
+browser flow while debugging.
 
 The pytest session selects one episode and two characters and shares that selection
 between API and UI tests. The selection is random by default. To reproduce a run,
@@ -70,9 +73,9 @@ debug log to `output/test_run.log`.
 - Writes each selected character's introduction to
   `output/characters_introduction.txt`.
 - Checks character data and compares the selected characters' current locations.
-- Opens Google Images through Google's home page, searches for each selected
-  character, and saves a screenshot of the selected image element as a timestamped
-  JPG under `output/screenshots/`.
+- Exercises the Google Images Page Objects in Chrome against a local test site,
+  searching for two sample characters and saving screenshots of selected image
+  elements as timestamped JPGs under `output/screenshots/`.
 - Implements Component A (sort two numbers) and Component B (sort four numbers
   using Component A) in `src/components/sorting.py`.
 
@@ -90,9 +93,9 @@ Settings can be overridden with environment variables:
 | `RM_MIN_EPISODE_CHARACTERS` | `30` | Minimum episode character count |
 | `RM_GOOGLE_URL` | `https://www.google.com/?hl=en` | Google entry URL |
 | `RM_BROWSER_LANGUAGE` | `en` | Chrome language |
-| `RM_HEADLESS` | `false` | Start Chrome headless by default |
+| `RM_HEADLESS` | `true` | Start Chrome headless by default |
 | `RM_UI_TIMEOUT` | `15` | Selenium explicit-wait timeout in seconds |
-| `RM_CAPTCHA_WAIT` | `120` | Seconds to wait for a human to solve a CAPTCHA; `0` fails immediately |
+| `RM_CAPTCHA_WAIT` | `120` | Interactive page-object wait for a CAPTCHA; UI tests set this to `0` and skip if blocked |
 | `RM_CHROME_ARGS` | empty | Additional Chrome command-line arguments |
 | `RM_CHROME_PROFILE_DIR` | unset | Chrome profile directory for persistent browser state |
 | `RM_OUTPUT_DIR` | `output/` | Directory for generated files |
@@ -114,11 +117,12 @@ python -m pytest -m ui
   when the API and comparison logic work correctly. The failure message identifies
   both characters and their locations.
 - A location named `unknown` is compared by its name like any other location.
-- Google controls its markup and may change selectors, show consent dialogs, or
-  block automated traffic with a CAPTCHA. The page objects use explicit waits and
-  handle the current consent/CAPTCHA flows, but external site changes can still
-  require maintenance.
+- UI tests use a local Google-shaped fixture to avoid external markup changes and
+  CAPTCHA prompts. They validate the browser flow, but a successful local test does
+  not guarantee that live Google accepts the request or that its markup has not
+  changed. Automated CAPTCHA solving or bypassing is intentionally not implemented.
 - The image-position rule is applied to the character ID as described in the
   assignment. For IDs with four or more digits, the implementation uses the
   hundreds digit and ones digit; this case is not defined by the assignment.
-- UI tests use live Google results, so image ordering and availability can vary.
+- UI tests use deterministic local result images. Live Google result ordering and
+  availability are not covered by the unattended test suite.

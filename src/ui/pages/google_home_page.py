@@ -28,4 +28,4 @@ class GoogleHomePage(GooglePage):
         except TimeoutException:
             log.warning("'Images' link not found on the home page; navigating by URL instead")
             self.driver.get(self.IMAGES_FALLBACK_URL)
-        return GoogleImagesPage(self.driver, self.timeout).wait_until_ready()
+        return GoogleImagesPage(self.driver, self.timeout, self.captcha_wait).wait_until_ready()
