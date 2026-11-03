@@ -38,7 +38,7 @@ class Settings:
     ui_timeout: float               # explicit-wait timeout, seconds
     chrome_args: Tuple[str, ...]    # extra Chrome flags, e.g. RM_CHROME_ARGS="--no-sandbox" on CI
     chrome_profile_dir: Optional[Path]  # dedicated profile folder => cookies/consent survive between runs
-    captcha_wait: float             # seconds to wait for a HUMAN to solve a CAPTCHA (120 = fail immediately)
+    captcha_wait: float             # seconds to wait for a HUMAN to solve a CAPTCHA (0 = fail immediately)
 
     # --- Output ---
     output_dir: Path
